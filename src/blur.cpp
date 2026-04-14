@@ -917,9 +917,9 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         }
     }
 
-    if (!renderInfo.blurCacheTexture || renderInfo.blurCacheTexture->size() != scaledBackgroundRect.size() || renderInfo.blurCacheTexture->internalFormat() != textureFormat) {
+    if (!renderInfo.blurCacheTexture || renderInfo.blurCacheTexture->size() != backgroundRect.size() || renderInfo.blurCacheTexture->internalFormat() != textureFormat) {
         glClearColor(0, 0, 0, 0);
-        auto texture = GLTexture::allocate(textureFormat, scaledBackgroundRect.size());
+        auto texture = GLTexture::allocate(textureFormat, backgroundRect.size());
         if (!texture) {
             qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to allocate an offscreen texture";
             return;
