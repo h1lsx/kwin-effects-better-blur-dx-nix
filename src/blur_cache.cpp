@@ -8,6 +8,7 @@
 #include <opengl/glshadermanager.h>
 
 #include <QLoggingCategory>
+#include <QtNumeric>
 
 Q_LOGGING_CATEGORY(BLUR_CACHE, "kwin_effect_better_blur_dx.blur_cache", QtInfoMsg)
 
@@ -49,6 +50,13 @@ void BBDX::BlurCache::updateBlurCacheDataBuffers(KWin::BlurRenderData &renderInf
         context->popFramebuffer();
         renderInfo.cache.texture = std::move(texture);
         renderInfo.cache.framebuffer = std::move(framebuffer);
+    }
+}
+
+void BBDX::BlurCache::maybeInvalidateCache(BlurCacheData &cacheData, qreal opacity) const {
+    if (!cacheData.opacity.has_value() || !qFuzzyCompare(cacheData.opacity.value(), opacity)) {
+        cacheData.opacity = opacity;
+        cacheData.valid = false;
     }
 }
 

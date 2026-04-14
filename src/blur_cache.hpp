@@ -2,9 +2,10 @@
 
 #include <opengl/glframebuffer.h>
 #include <opengl/glshader.h>
+#include <opengl/glvertexbuffer.h>
 
 #include <memory>
-#include <opengl/glvertexbuffer.h>
+#include <optional>
 
 namespace KWin {
     struct BlurRenderData;
@@ -25,6 +26,9 @@ struct BlurCacheData {
     // with the size of scaledBackgroundRect from BlurEffect::blur()
     std::unique_ptr<KWin::GLTexture> texture;
     std::unique_ptr<KWin::GLFramebuffer> framebuffer;
+
+    // things that affect validity of the cache
+    std::optional<qreal> opacity{};
 };
 
 class BlurCache {
@@ -49,6 +53,11 @@ public:
      * Updates the BlurCacheData buffers of the given renderInfo
      */
     void updateBlurCacheDataBuffers(KWin::BlurRenderData &renderInfo, const KWin::Rect &scaledBackgroundRect, GLenum textureFormat) const;
+
+    /**
+     * Update relevant properties and invalidate cache of provided renderInfo if they changed
+     */
+    void maybeInvalidateCache(BlurCacheData &cacheData, qreal opacity) const;
 
     /**
      * Injects the geometry used for the cache, in logical pixels
