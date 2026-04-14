@@ -308,3 +308,15 @@ qreal BBDX::WindowManager::getEffectiveBlurOpacity(const KWin::EffectWindow *w, 
 
     return window->getEffectiveBlurOpacity(data);
 }
+
+void BBDX::WindowManager::invalidateBlurCacheAbove(const KWin::EffectWindow *w) const {
+    for (const auto &[kWindow, bbdxWindow] : m_windows) {
+        if (kWindow->window()->stackingOrder() <= w->window()->stackingOrder()) {
+            continue;
+        }
+
+        if (kWindow->frameGeometry().intersects(w->frameGeometry())) {
+            bbdxWindow->invalidateBlurCache();
+        }
+    }
+}

@@ -153,6 +153,11 @@ public:
      * Get effective blur opacity for requested window
      */
     qreal getEffectiveBlurOpacity(const KWin::EffectWindow *w, KWin::WindowPaintData &data) const;
+
+    /**
+     * Invalidate cache for all overlapping windows above
+     */
+    void invalidateBlurCacheAbove(const KWin::EffectWindow *w) const;
 };
 
 } // namespace KWin

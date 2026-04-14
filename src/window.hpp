@@ -109,7 +109,6 @@ private:
     void updateForceBlurRegion();
     void triggerBlurRegionUpdate() const;
     bool opacityChangedFromOriginal();
-    void invalidateBlurCache() const;
 
     /**
      * Helpers for interacting with m_blurOriginMask
@@ -189,6 +188,11 @@ public:
      * Whether this window is blurred in any way (requested or forced)
      */
     bool isBlurred() const;
+
+    /**
+     * Invalidate the blur cache for this window
+     */
+    void invalidateBlurCache() const;
 
     /**
      * operator to facilitate logging of windows

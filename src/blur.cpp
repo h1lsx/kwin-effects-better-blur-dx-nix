@@ -711,6 +711,11 @@ void BlurEffect::prePaintWindow(RenderView *view, EffectWindow *w, WindowPrePain
     if (m_windowManager.windowIsBlurred(w)) {
         data.setTranslucent();
     }
+
+    // BBDX:
+    // invalidate during prePaintWindow so actual paint
+    // should have the info ready
+    m_windowManager.invalidateBlurCacheAbove(w);
 }
 
 bool BlurEffect::shouldBlur(const EffectWindow *w, int mask, const WindowPaintData &data) const
