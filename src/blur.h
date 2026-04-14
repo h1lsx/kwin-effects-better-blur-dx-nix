@@ -49,6 +49,7 @@ struct BlurRenderData
 
     std::unique_ptr<GLTexture> blurCacheTexture;
     std::unique_ptr<GLFramebuffer> blurCacheFramebuffer;
+    bool blurCacheValid{false};
 };
 
 struct BlurEffectData

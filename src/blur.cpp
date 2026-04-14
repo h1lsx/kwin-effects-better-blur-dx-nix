@@ -14,6 +14,7 @@
 #include "window_manager.hpp"
 #include "kwin_version.hpp"
 #include <epoxy/gl_generated.h>
+#include <iterator>
 #include <opengl/glshadermanager.h>
 #include <qsize.h>
 
@@ -878,6 +879,7 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     if (renderInfo.framebuffers.size() != (m_iterationCount + 1) || renderInfo.textures[0]->size() != backgroundRect.size() || renderInfo.textures[0]->internalFormat() != textureFormat) {
         renderInfo.framebuffers.clear();
         renderInfo.textures.clear();
+        renderInfo.blurCacheValid = false;
 
         glClearColor(0, 0, 0, 0);
         for (size_t i = 0; i <= m_iterationCount; ++i) {
@@ -1051,6 +1053,25 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     }
 
     vbo->bindArrays();
+
+    if (renderInfo.blurCacheValid) {
+        ShaderManager::instance()->pushShader(m_texturePass.shader.get());
+        
+        QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
+        projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
+
+        const auto &read = renderInfo.blurCacheFramebuffer->colorAttachment();
+
+        m_texturePass.shader->setUniform(m_texturePass.mvpMatrixLocation, projectionMatrix);
+        read->bind();
+
+        vbo->draw(GL_TRIANGLES, 6, vertexCount);
+
+        ShaderManager::instance()->popShader();
+
+        vbo->unbindArrays();
+        return;
+    }
 
     // The downsample pass of the dual Kawase algorithm: the background will be scaled down 50% every iteration.
     {
@@ -1238,6 +1259,8 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         m_roundedCornersPass.apply(cornerRadius, viewport, backgroundRect, renderInfo, w, data, vbo, vertexCount);
         GLFramebuffer::popFramebuffer();
     }
+
+    renderInfo.blurCacheValid = true;
 
     {
         ShaderManager::instance()->pushShader(m_texturePass.shader.get());
