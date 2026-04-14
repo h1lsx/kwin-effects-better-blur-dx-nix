@@ -61,7 +61,7 @@ public:
     /**
      * Draw the cached texture
      */
-    void drawCached(const KWin::Rect &scaledBackgroundRect, const KWin::RenderViewport &viewport, KWin::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount) const;
+    void drawCached(const KWin::Rect &scaledBackgroundRect, const KWin::RenderViewport &viewport, KWin::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount, const float modulation) const;
 
     /**
      * vbo->draw() wrapper to draw into BlurCacheData of the provided renderInfo

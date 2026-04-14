@@ -1032,7 +1032,8 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
 
     // BBDX:
     if (renderInfo.cache.valid) {
-        m_blurCache.drawCached(scaledBackgroundRect, viewport, renderInfo, vbo, vertexCount);
+        const float modulation = opacity * opacity;
+        m_blurCache.drawCached(scaledBackgroundRect, viewport, renderInfo, vbo, vertexCount, modulation);
         vbo->unbindArrays();
         return;
     }
@@ -1221,7 +1222,7 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     }
 
     // BBDX:
-    m_blurCache.drawCached(scaledBackgroundRect, viewport, renderInfo, vbo, vertexCount);
+    m_blurCache.drawCached(scaledBackgroundRect, viewport, renderInfo, vbo, vertexCount, modulation);
     renderInfo.cache.valid = true;
 
     vbo->unbindArrays();

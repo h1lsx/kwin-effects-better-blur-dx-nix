@@ -98,7 +98,7 @@ void BBDX::BlurCache::setupVBO(const KWin::Rect &scaledBackgroundRect, std::span
     }
 };
 
-void BBDX::BlurCache::drawCached(const KWin::Rect &scaledBackgroundRect, const KWin::RenderViewport &viewport, KWin::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount) const {
+void BBDX::BlurCache::drawCached(const KWin::Rect &scaledBackgroundRect, const KWin::RenderViewport &viewport, KWin::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount, const float modulation) const {
     KWin::ShaderManager::instance()->pushShader(m_texturePass.shader.get());
     
     QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
@@ -109,7 +109,17 @@ void BBDX::BlurCache::drawCached(const KWin::Rect &scaledBackgroundRect, const K
     m_texturePass.shader->setUniform(m_texturePass.mvpMatrixLocation, projectionMatrix);
     read->bind();
 
+    if (modulation < 1.0) {
+        glEnable(GL_BLEND);
+        glBlendColor(0, 0, 0, modulation);
+        glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+    }
+
     vbo->draw(GL_TRIANGLES, 12, vertexCount);
+
+    if (modulation < 1.0) {
+        glDisable(GL_BLEND);
+    }
 
     KWin::ShaderManager::instance()->popShader();
 }
