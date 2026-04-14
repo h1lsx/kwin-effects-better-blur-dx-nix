@@ -47,8 +47,8 @@ struct BlurRenderData
     std::vector<std::unique_ptr<GLTexture>> textures;
     std::vector<std::unique_ptr<GLFramebuffer>> framebuffers;
 
-    std::optional<std::unique_ptr<GLTexture>> blurCacheTexture;
-    std::optional<std::unique_ptr<GLFramebuffer>> blurCacheFramebuffer;
+    std::unique_ptr<GLTexture> blurCacheTexture;
+    std::unique_ptr<GLFramebuffer> blurCacheFramebuffer;
 };
 
 struct BlurEffectData
@@ -183,6 +183,12 @@ private:
         qreal noiseTextureScale = 1.0;
         int noiseTextureStength = 0;
     } m_noisePass;
+
+    struct
+    {
+        std::unique_ptr<GLShader> shader;
+        int mvpMatrixLocation;
+    } m_texturePass;
 
     bool m_valid = false;
     long net_wm_blur_region = 0;
