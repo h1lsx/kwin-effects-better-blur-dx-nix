@@ -19,10 +19,6 @@ namespace KWin {
 }
 
 namespace BBDX {
-    class BlurCache;
-}
-
-namespace BBDX {
 
 class RoundedCornersPass {
 private:
@@ -53,7 +49,7 @@ public:
                const KWin::EffectWindow *w,
                const KWin::WindowPaintData &data,
                KWin::GLVertexBuffer *vbo,
-               const BBDX::BlurCache *blurCache) const;
+               const int vertexCount) const;
 };
 
 } // namespace BBDX

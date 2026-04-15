@@ -41,15 +41,15 @@ void BBDX::RoundedCornersPass::apply(const KWin::BorderRadius &cornerRadius,
                                      const KWin::EffectWindow *w,
                                      const KWin::WindowPaintData &data,
                                      KWin::GLVertexBuffer *vbo,
-                                     const BBDX::BlurCache *blurCache) const {
+                                     const int vertexCount) const {
         if (!ready()) [[unlikely]] {
             return;
         }
 
         KWin::ShaderManager::instance()->pushShader(m_shader.get());
 
-        QMatrix4x4 projectionMatrix;
-        projectionMatrix.ortho(QRectF(0.0, 0.0, scaledBackgroundRect.width(), scaledBackgroundRect.height()));
+        QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
+        projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
 
         // should contain the raw un-blurred pixels
         const auto &read = renderInfo.framebuffers[0];
@@ -74,7 +74,7 @@ void BBDX::RoundedCornersPass::apply(const KWin::BorderRadius &cornerRadius,
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        blurCache->drawToCache(renderInfo, vbo);
+        vbo->draw(GL_TRIANGLES, 12, vertexCount);
 
         glDisable(GL_BLEND);
 
