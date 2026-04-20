@@ -1,17 +1,24 @@
 #pragma once
 
+#include "kwin_version.hpp"
+
 #include <effect/effectwindow.h>
 #include <opengl/glframebuffer.h>
 #include <opengl/glshader.h>
 #include <opengl/gltexture.h>
 #include <opengl/glvertexbuffer.h>
 
+#if KWIN_VERSION < KWIN_VERSION_CODE(6, 5, 80)
+#  include "kwin_compat_6_5.hpp"
+#else
+#  include <core/rect.h>
+#endif
+
 #include <memory>
 #include <optional>
 
 namespace KWin {
     struct BlurRenderData;
-    class Rect;
     class GLVertex2D;
 }
 

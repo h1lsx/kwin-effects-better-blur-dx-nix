@@ -1,13 +1,20 @@
 #include "blur_cache.hpp"
+
 #include "blur.h"
+#include "kwin_version.hpp"
 #include "utils.h"
 
-#include <core/rect.h>
 #include <core/renderviewport.h>
 #include <epoxy/gl.h>
 #include <opengl/eglcontext.h>
 #include <opengl/glframebuffer.h>
 #include <opengl/glshadermanager.h>
+
+#if KWIN_VERSION < KWIN_VERSION_CODE(6, 5, 80)
+#  include "kwin_compat_6_5.hpp"
+#else
+#  include <core/rect.h>
+#endif
 
 #include <QLoggingCategory>
 #include <QtNumeric>
