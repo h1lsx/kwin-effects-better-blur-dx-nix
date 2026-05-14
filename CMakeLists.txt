@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.16.0)
 
-project(kwin_better_blur_dx)
-set(PROJECT_VERSION "2.3.0")
-set(PROJECT_VERSION_MAJOR 0)
+project(kwin_better_blur_dx
+    VERSION 2.4.1
+    LANGUAGES CXX
+)
 
 set(KF_MIN_VERSION "5.240.0")
 set(QT_MIN_VERSION "6.6.0")

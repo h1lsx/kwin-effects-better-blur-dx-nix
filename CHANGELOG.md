@@ -1,6 +1,10 @@
 # DEV
 Things not in any tagged release yet:
 
+# 2.4.1
+
+Version bump to fix version string - no actual changes
+
 # 2.4.0
 
 ### Features:
