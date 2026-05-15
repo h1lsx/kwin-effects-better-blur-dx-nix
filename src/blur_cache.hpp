@@ -159,9 +159,7 @@ public:
     void updateBlurCacheDataBuffers(KWin::BlurRenderData &renderInfo, const KWin::Rect &scaledBackgroundRect, GLenum textureFormat) const;
 
     /**
-     * Check and update certain applicable properties and invalidate cache of provided renderInfo if they changed
-     *
-     * If no "easy" properties exist resorts to comparing the blit textures
+     * Select a cache entry from renderInfo if a valid one exists
      */
     void selectCacheEntry(KWin::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo);
 
