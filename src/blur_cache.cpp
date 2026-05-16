@@ -210,7 +210,6 @@ BBDX::BlurCache::BlurCache() {
         m_textureComparePass.mvpMatrixLocation = m_textureComparePass.shader->uniformLocation("modelViewProjectionMatrix");
         m_textureComparePass.texUnitOldLocation = m_textureComparePass.shader->uniformLocation("texUnitOld");
         m_textureComparePass.texUnitNewLocation = m_textureComparePass.shader->uniformLocation("texUnitNew");
-        m_textureComparePass.halfpixelLocation = m_textureComparePass.shader->uniformLocation("halfpixel");
         m_textureComparePass.borderIgnore = m_textureComparePass.shader->uniformLocation("borderIgnore");
     }
 
@@ -285,9 +284,6 @@ void BBDX::BlurCache::selectCacheEntry(KWin::BlurRenderData &renderInfo,
         m_textureComparePass.shader->setUniform(m_textureComparePass.texUnitNewLocation, 1);
         glActiveTexture(GL_TEXTURE1);
         blitTexture->bind();
-
-        m_textureComparePass.shader->setUniform(m_textureComparePass.halfpixelLocation,
-                                                QVector2D(0.5 / blitTexture->width(), 0.5 / blitTexture->height()));
 
         // pixels at window borders are fairly unreliable so ignore a slim border (1% of the texture size)
         m_textureComparePass.shader->setUniform(m_textureComparePass.borderIgnore, 0.01);
