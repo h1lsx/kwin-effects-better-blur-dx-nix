@@ -232,8 +232,7 @@ BBDX::BlurCache::BlurCache() {
     }
 }
 
-void BBDX::BlurCache::selectCacheEntry(const KWin::Region &dirtyRegion,
-                                       KWin::BlurRenderData &renderInfo,
+void BBDX::BlurCache::selectCacheEntry(KWin::BlurRenderData &renderInfo,
                                        KWin::GLVertexBuffer *vbo) {
     auto &cache = renderInfo.cache;
     std::unique_ptr<KWin::GLTexture> compareTexture{nullptr};
@@ -253,17 +252,6 @@ void BBDX::BlurCache::selectCacheEntry(const KWin::Region &dirtyRegion,
         }
         if (prevBlitTexture->internalFormat() != blitTexture->internalFormat()) {
             continue;
-        }
-
-        // as a speedup assume cache for the same dirtyRegion is
-        // still valid for a short period (equivalent to ~30fps)
-        if (dirtyRegion == cacheEntry->dirtyRegion) {
-            std::chrono::milliseconds elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - cacheEntry->verifiedAt);
-            constexpr std::chrono::milliseconds limit{1000 / 30};
-            if (elapsed <= limit) {
-                cache.select();
-                continue;
-            }
         }
 
         // fast path in case we already determined we
@@ -351,6 +339,24 @@ cleanup:
 
         KWin::GLFramebuffer::popFramebuffer();
         KWin::ShaderManager::instance()->popShader();
+    }
+}
+
+void BBDX::BlurCache::selectCacheEntryEarly(KWin::BlurRenderData &renderInfo,
+                                            const KWin::Region &dirtyRegion) {
+    auto &cache = renderInfo.cache;
+
+    cache.reset();
+    while (auto cacheEntry = cache.next()) {
+        // assume cache for the same dirtyRegion is
+        // still valid for a short period (equivalent to ~30fps)
+        if (dirtyRegion == cacheEntry->dirtyRegion) {
+            std::chrono::milliseconds elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - cacheEntry->verifiedAt);
+            constexpr std::chrono::milliseconds limit{1000 / 30};
+            if (elapsed <= limit) {
+                cache.select();
+            }
+        }
     }
 }
 
@@ -443,7 +449,7 @@ void BBDX::BlurCache::setupVBO(const KWin::Rect &backgroundRect, const KWin::Rec
             .texcoord = QVector2D(u1, v1),
         };
     }
-};
+}
 
 void BBDX::BlurCache::drawCached(const KWin::Rect &scaledBackgroundRect, const KWin::RenderViewport &viewport, KWin::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount, const float modulation) const {
     KWin::ShaderManager::instance()->pushShader(m_texturePass.shader.get());
