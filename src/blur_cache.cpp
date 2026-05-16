@@ -314,7 +314,7 @@ void BBDX::BlurCache::selectCacheEntry(KWin::BlurRenderData &renderInfo,
         }
 
         // perform query
-        vbo->draw(GL_TRIANGLES, 0, 6);
+        vbo->draw(GL_TRIANGLES, vboStartTextureCompare(), vboCountTextureCompare());
         glEndQuery(GL_ANY_SAMPLES_PASSED);
 
         // await query and check
@@ -336,7 +336,52 @@ cleanup:
     }
 }
 
-void BBDX::BlurCache::setupVBO(const KWin::Rect &scaledBackgroundRect, std::span<KWin::GLVertex2D> &map, size_t &vboIndex) const {
+void BBDX::BlurCache::setupVBO(const KWin::Rect &backgroundRect, const KWin::Rect &scaledBackgroundRect, std::span<KWin::GLVertex2D> &map, size_t &vboIndex) const {
+    // The geometry used for texture comparison, in logical pixels.
+    {
+        const qreal width = static_cast<qreal>(backgroundRect.width()) * m_textureCompareScaleFactor;
+        const qreal height = static_cast<qreal>(backgroundRect.height()) * m_textureCompareScaleFactor;
+        const QRectF localRect = QRectF(0, 0, width, height);
+
+        const float x0 = localRect.left();
+        const float y0 = localRect.top();
+        const float x1 = localRect.right();
+        const float y1 = localRect.bottom();
+
+        const float u0 = x0 / width;
+        const float v0 = 1.0f - y0 / height;
+        const float u1 = x1 / width;
+        const float v1 = 1.0f - y1 / height;
+
+        // first triangle
+        map[vboIndex++] = KWin::GLVertex2D{
+            .position = QVector2D(x0, y0),
+            .texcoord = QVector2D(u0, v0),
+        };
+        map[vboIndex++] = KWin::GLVertex2D{
+            .position = QVector2D(x1, y1),
+            .texcoord = QVector2D(u1, v1),
+        };
+        map[vboIndex++] = KWin::GLVertex2D{
+            .position = QVector2D(x0, y1),
+            .texcoord = QVector2D(u0, v1),
+        };
+
+        // second triangle
+        map[vboIndex++] = KWin::GLVertex2D{
+            .position = QVector2D(x0, y0),
+            .texcoord = QVector2D(u0, v0),
+        };
+        map[vboIndex++] = KWin::GLVertex2D{
+            .position = QVector2D(x1, y0),
+            .texcoord = QVector2D(u1, v0),
+        };
+        map[vboIndex++] = KWin::GLVertex2D{
+            .position = QVector2D(x1, y1),
+            .texcoord = QVector2D(u1, v1),
+        };
+    }
+
     // The geometry used for the cache, in logical pixels
     // but scaled to what would be drawn on the device.
     {
@@ -407,7 +452,7 @@ void BBDX::BlurCache::drawCached(const KWin::Rect &scaledBackgroundRect, const K
         glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
     }
 
-    vbo->draw(GL_TRIANGLES, 12, vertexCount);
+    vbo->draw(GL_TRIANGLES, vboStartScreen(), vertexCount);
 
     if (modulation < 1.0) {
         glDisable(GL_BLEND);
@@ -419,6 +464,6 @@ void BBDX::BlurCache::drawCached(const KWin::Rect &scaledBackgroundRect, const K
 void BBDX::BlurCache::drawToCache(KWin::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo) const {
     auto cachedFramebuffer = renderInfo.cache.valid()->cachedFramebuffer.get();
     KWin::GLFramebuffer::pushFramebuffer(cachedFramebuffer);
-    vbo->draw(GL_TRIANGLES, 6, 6);
+    vbo->draw(GL_TRIANGLES, vboStartCache(), vboCountCache());
     KWin::GLFramebuffer::popFramebuffer();
 }

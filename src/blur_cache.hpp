@@ -139,7 +139,11 @@ private:
         int mvpMatrixLocation;
     } m_texturePass;
 
+    // set to false once the glQuery fails with GL_INVALID_ENUM
     bool m_glQueryAvailable{true};
+
+    // during texture comparison the drawn Rect is scaled by this amount
+    qreal m_textureCompareScaleFactor{0.5};
 
 public:
     /**
@@ -161,9 +165,19 @@ public:
      * Injects the geometry used for the cache, in logical pixels
      * but scaled to what would be drawn on the device.
      *
-     * Always adds 6 vertices
+     * Always adds BlurCache::addedVertices() vertices
      */
-    void setupVBO(const KWin::Rect &scaledBackgroundRect, std::span<KWin::GLVertex2D> &map, size_t &vboIndex) const;
+    void setupVBO(const KWin::Rect &backgroundRect, const KWin::Rect &scaledBackgroundRect, std::span<KWin::GLVertex2D> &map, size_t &vboIndex) const;
+    static constexpr uint addedVertices() { return 12; }
+
+    /**
+     * Start indices and vert count of stuff in the VBO
+     */
+    static constexpr uint vboStartTextureCompare() { return 6; }
+    static constexpr uint vboCountTextureCompare() { return 6; }
+    static constexpr uint vboStartCache() { return vboStartTextureCompare() + vboCountTextureCompare(); }
+    static constexpr uint vboCountCache() { return 6; }
+    static constexpr uint vboStartScreen() { return vboStartCache() + vboCountCache(); }
 
     /**
      * Draw the cached texture

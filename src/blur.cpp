@@ -1032,8 +1032,7 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     vbo->setAttribLayout(std::span(GLVertexBuffer::GLVertex2DLayout), sizeof(GLVertex2D));
 
     const int vertexCount = effectiveShape.size() * 6;
-    // BBDX: adds 6 more vertices for BlurCache
-    if (auto result = vbo->map<GLVertex2D>(6 + 6 + vertexCount)) {
+    if (auto result = vbo->map<GLVertex2D>(6 + BBDX::BlurCache::addedVertices() + vertexCount)) {
         auto map = *result;
 
         size_t vboIndex = 0;
@@ -1082,7 +1081,7 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         }
 
         // BBDX:
-        m_blurCache->setupVBO(scaledBackgroundRect, map, vboIndex);
+        m_blurCache->setupVBO(backgroundRect, scaledBackgroundRect, map, vboIndex);
 
         // The geometry that will be painted on screen, in device pixels.
         for (const RectF &rect : effectiveShape) {
