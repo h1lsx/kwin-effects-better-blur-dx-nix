@@ -143,8 +143,8 @@ private:
 
     // During texture comparison backgroundRect is scaled by this amount
     // to speed up the OpenGL query which compares every fragment.
-    // Even a scale of 0.5 means we just need to compare 25% of the actual pixels
-    // while likely still being "good enough"
+    // A scale of 0.5 means we just need to compare 25% of the actual pixels.
+    // At 0.1 it's just 1% of pixels (and it still looks just fine)
     qreal m_textureCompareScaleFactor{0.1};
 
 public:
