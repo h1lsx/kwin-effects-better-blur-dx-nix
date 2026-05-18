@@ -282,13 +282,14 @@ void BBDX::BlurCache::selectCacheEntry(KWin::BlurRenderData &renderInfo,
                                        KWin::GLVertexBuffer *vbo,
                                        const KWin::Region &dirtyRegion) {
     auto &cache = renderInfo.cache;
+    KWin::GLTexture *blitTexture = renderInfo.framebuffers[0].get()->colorAttachment();
+
     std::unique_ptr<KWin::GLTexture> compareTexture{nullptr};
     std::unique_ptr<KWin::GLFramebuffer> compareFramebuffer{nullptr};
 
     cache.reset();
     while (auto cacheEntry = cache.next()) {
         KWin::GLTexture *cacheBlitTexture = cacheEntry->blitTexture.get();
-        KWin::GLTexture *blitTexture = renderInfo.framebuffers[0].get()->colorAttachment();
 
         // previous blit texture is definitely different
         if (!cacheBlitTexture) {
