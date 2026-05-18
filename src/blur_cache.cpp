@@ -59,14 +59,9 @@ BBDX::BlurCacheEntry::BlurCacheEntry(const KWin::Rect &scaledBackgroundRect, GLe
         qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "Failed to create an offscreen framebuffer";
         return;
     }
-#if defined(BETTERBLUR_X11)
-    auto *context = KWin::OpenGlContext::currentContext();
-#else
-    auto *context = KWin::EglContext::currentContext();
-#endif
-    context->pushFramebuffer(cachedFramebuffer.get());
+    KWin::GLFramebuffer::pushFramebuffer(cachedFramebuffer.get());
     glClear(GL_COLOR_BUFFER_BIT);
-    context->popFramebuffer();
+    KWin::GLFramebuffer::popFramebuffer();
 
 
     // clone the blitTexture from the given framebuffer
