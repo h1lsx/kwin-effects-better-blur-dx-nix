@@ -90,7 +90,6 @@ void BBDX::Window::slotWindowFinishUserMovedResized() {
 void BBDX::Window::slotWindowFrameGeometryChanged() {
     updateForceBlurRegion();
     refreshMaximizedState();
-    invalidateBlurCache(QStringLiteral("Frame geometry changed"));
 
     // Not sure if this is the best place to unset
     // this but seems to work fine for now
