@@ -167,6 +167,12 @@ public:
      * of previous paints if the scene didn't actually change
      */
     void expandPaintedRegions(KWin::ScreenPrePaintData &data) const;
+
+    /**
+     * Check if the provided window has "top level blur"
+     * i.e. is not fully covered by other window's blur regions
+     */
+    bool windowHasTopLevelBlur(KWin::EffectWindow *w) const;
 };
 
 } // namespace KWin
