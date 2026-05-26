@@ -301,7 +301,8 @@ private:
      *
      * DEBUGGING: setting this to basic SAMPLES_PASSED enables pixel diff logging
      */
-    GLQueryAvailable m_glQueryAvailable{GLQueryAvailable::ANY_SAMPLES_PASSED_CONSERVATIVE};
+    //GLQueryAvailable m_glQueryAvailable{GLQueryAvailable::ANY_SAMPLES_PASSED_CONSERVATIVE};
+    GLQueryAvailable m_glQueryAvailable{GLQueryAvailable::SAMPLES_PASSED};
 
     // Data used for this specific window paint
     // !!! preparePaintData() must be called before accessing any of this !!!
