@@ -205,6 +205,7 @@ void BBDX::BlurCacheLRU::setDirty() {
     uint hits{0};
     if (m_entry) {
         hits = m_entry->hits;
+        m_entry->hits = 0;
     }
 
     qCDebug(BLUR_CACHE) << BBDX::LOG_PREFIX
