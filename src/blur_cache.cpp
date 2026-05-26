@@ -320,6 +320,7 @@ void BBDX::BlurCache::selectCacheEntry(BBDX::BlurRenderData &renderInfo,
         glActiveTexture(GL_TEXTURE1);
         blitTexture->bind();
 
+        bool queryQueued{false};
         GLuint queryObject{};
         glGenQueries(1, &queryObject);
 
@@ -430,6 +431,7 @@ void BBDX::BlurCache::selectCacheEntry(BBDX::BlurRenderData &renderInfo,
                                          m_paintData.view,
                                          m_paintData.window,
                                          *m_paintData.dirtyRegion);
+        queryQueued = true;
 
         // collect the blit damage for future repaints
         cacheEntry->updateBlitTexture(renderInfo.framebuffers[0].get(), *m_paintData.dirtyRegion);
@@ -447,6 +449,10 @@ cleanup:
         glDepthMask(GL_TRUE);
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
         glActiveTexture(GL_TEXTURE0);
+
+        if (!queryQueued) {
+            glDeleteQueries(1, &queryObject);
+        }
 
         KWin::GLFramebuffer::popFramebuffer();
         KWin::ShaderManager::instance()->popShader();
