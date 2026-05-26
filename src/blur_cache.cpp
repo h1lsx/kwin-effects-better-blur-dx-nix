@@ -373,7 +373,6 @@ void BBDX::BlurCache::selectCacheEntry(BBDX::BlurRenderData &renderInfo,
         // select if cache isn't dirty
         // else we'll re-blur after which it's no longer dirty
         if (cache.dirty()) {
-            qCDebug(BLUR_CACHE) << "Cache dirty:" << m_paintData.window->windowClass();
             cache.clearDirty();
             return;
         } else {
@@ -492,7 +491,6 @@ void BBDX::BlurCache::selectCacheEntry(BBDX::BlurRenderData &renderInfo,
         glEndQuery(queryUsed);
 
         // queue up successful query
-        qCDebug(BLUR_CACHE) << BBDX::LOG_PREFIX << "Adding validation query";
         m_validationQueries.emplace_back(queryObject,
                                          queryUsed,
                                          m_paintData.view,
