@@ -43,16 +43,7 @@ Q_LOGGING_CATEGORY(BLUR_CACHE, "kwin_effect_better_blur_dx.blur_cache", QtInfoMs
 static inline std::chrono::steady_clock::time_point validationsToTTL(uint validations) {
     // we start at 60fps
     // each validation cuts framerate in half
-    double fps{60.0};
-
-    // 60/(2^6) = 0.9
-    if (validations < 6) {
-        for (uint i{1}; i <= validations; i++) {
-            fps /= 2.0;
-        }
-    } else {
-        fps = 1.0;
-    }
+    double fps{60.0 / (1 << validations)};
 
     const auto fpsRounded = std::lround(std::max(fps, 1.0));
 
@@ -365,7 +356,6 @@ void BBDX::BlurCache::selectCacheEntry(BBDX::BlurRenderData &renderInfo,
 
         // fast path for rate limiting queries
         if (cacheEntry->validUntil >= std::chrono::steady_clock::now()) {
-            cacheEntry->updateBlitTexture(renderInfo.framebuffers[0].get(), *m_paintData.dirtyRegion);
             cacheEntry->accumulateDirtyRegion(*m_paintData.dirtyRegion);
             cache.select();
             return;
