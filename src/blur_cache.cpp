@@ -156,8 +156,18 @@ void BBDX::BlurCacheLRU::setDirty() {
                         << "Hits:" << hits;
 }
 
-void BBDX::BlurCacheLRU::invalidate(QStringView reason, bool skipGlContext) {
+void BBDX::BlurCacheLRU::invalidate(BlurCacheInvalidation type, QStringView reason, bool skipGlContext) {
     if (!m_entry) {
+        return;
+    }
+
+    if (type == BlurCacheInvalidation::SOFT) {
+        qCDebug(BLUR_CACHE) << BBDX::LOG_PREFIX
+                            << "Dirtying cache:" << m_windowClass << "\n"
+                            << "PID:" << m_windowPID << "\n"
+                            << "Hits:" << m_entry->hits << "\n"
+                            << "Reason:" << reason;
+        setDirty();
         return;
     }
 

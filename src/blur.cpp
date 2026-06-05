@@ -456,7 +456,7 @@ void BlurEffect::updateBlurRegion(EffectWindow *w)
 
     // BBDX:
     m_windowManager->getFinalBlurRegion(w, content, frame);
-    m_windowManager->invalidateBlurCache(w, QStringLiteral("Blur region updated"));
+    m_windowManager->invalidateBlurCache(w, BlurCacheInvalidation::HARD, QStringLiteral("Blur region updated"));
 
     if (content.has_value() || frame.has_value()) {
         BlurEffectData &data = m_windows[w];
@@ -987,7 +987,7 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         renderInfo.framebuffers.clear();
         renderInfo.textures.clear();
         // BBDX:
-        renderInfo.cache.invalidate(QStringLiteral("New framebuffers required"), true);
+        renderInfo.cache.invalidate(BlurCacheInvalidation::HARD, QStringLiteral("New framebuffers required"), true);
 
         glClearColor(0, 0, 0, 0);
         for (size_t i = 0; i <= m_iterationCount; ++i) {

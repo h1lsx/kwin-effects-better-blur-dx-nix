@@ -27,6 +27,7 @@ namespace KWin {
 
 namespace BBDX {
 class BlurEffect;
+enum class BlurCacheInvalidation;
 
 class WindowManager : public QObject {
     Q_OBJECT
@@ -121,7 +122,7 @@ public:
     /**
      * emits the windowInvalidatedBlurCache signal
      */
-    void invalidateBlurCache(KWin::EffectWindow *w, QStringView reason) const;
+    void invalidateBlurCache(KWin::EffectWindow *w, BlurCacheInvalidation type, QStringView reason) const;
 
     /**
      * Set the "window is transformed" flag on a window

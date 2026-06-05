@@ -21,6 +21,7 @@ namespace KWin {
 namespace BBDX {
 
 class WindowManager;
+enum class BlurCacheInvalidation;
 
 class Window : public QObject {
     Q_OBJECT
@@ -196,7 +197,7 @@ public:
     /**
      * Invalidate the blur cache for this window
      */
-    void invalidateBlurCache(QStringView reason) const;
+    void invalidateBlurCache(BlurCacheInvalidation type, QStringView reason) const;
 
     /**
      * operator to facilitate logging of windows
