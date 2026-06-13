@@ -200,7 +200,7 @@ void BBDX::TextureComparer::compareAndUpdate(KWin::GLTexture *freshBlit, KWin::G
     // reset and bind counter
     const GLuint zero = 0;
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_counterBuffer);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(GLuint), &zero);
+    glClearBufferSubData(GL_SHADER_STORAGE_BUFFER, GL_R32UI, 0, sizeof(GLuint), GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
     // slot 2 - matching compute shader
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_counterBuffer);
 
