@@ -75,9 +75,12 @@ struct BlurCacheEntry {
     void accumulateDirtyRegion(const KWin::Region &dirtyRegion);
 
     /**
-     * Helper for mapping dirtyRegion into backgroundRect
+     * Helpers for mapping dirtyRegion into backgroundRect
+     *
+     * the *GL version additionally flips along the y axis into OpenGL coordinates
      */
     KWin::Region localDirtyRegion(const KWin::Region &dirtyRegion) const;
+    KWin::Region localDirtyRegionGL(const KWin::Region &dirtyRegion) const;
 };
 
 /**

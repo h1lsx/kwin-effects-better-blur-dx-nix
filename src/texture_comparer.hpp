@@ -75,12 +75,12 @@ public:
 
     /**
      * Compare and update cachedBlit with freshBlit
-     * within the localDirtyRegion
+     * within the localDirtyRegion (in GL coords)
      *
      * The result of the comparison can be found using the
      * query object returned by queryObject()
      */
-    void compareAndUpdate(KWin::GLTexture *freshBlit, KWin::GLTexture *cachedBlit, const KWin::Region &localDirtyRegion);
+    void compareAndUpdate(KWin::GLTexture *freshBlit, KWin::GLTexture *cachedBlit, const KWin::Region &localDirtyRegionGL);
 };
 
 }

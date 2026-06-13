@@ -172,7 +172,7 @@ BBDX::TextureComparer::~TextureComparer() {
     }
 }
 
-void BBDX::TextureComparer::compareAndUpdate(KWin::GLTexture *freshBlit, KWin::GLTexture *cachedBlit, const KWin::Region &localDirtyRegion) {
+void BBDX::TextureComparer::compareAndUpdate(KWin::GLTexture *freshBlit, KWin::GLTexture *cachedBlit, const KWin::Region &localDirtyRegionGL) {
     const auto textureFormat = freshBlit->internalFormat();
 
     // lazily create compute shader instances in case we need
@@ -208,8 +208,8 @@ void BBDX::TextureComparer::compareAndUpdate(KWin::GLTexture *freshBlit, KWin::G
     glGetIntegerv(GL_CURRENT_PROGRAM, &prevProgram);
     glUseProgram(computeShader->program);
 
-    for (const auto &rect : localDirtyRegion.rects()) {
-        // bind dirtyRect
+    for (const auto &rect : localDirtyRegionGL.rects()) {
+        // bind dirtyRect, in OpenGL coords
         glUniform4i(computeShader->dirtyRectLocation, rect.x(), rect.y(), rect.width(), rect.height());
 
         // dispatch in 16x16 workgroup blocks (ceiled, matching compute shader params)
