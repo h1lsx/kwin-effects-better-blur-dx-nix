@@ -94,7 +94,7 @@ struct BlurCacheEntry {
      * Mark this entry for flushing and reset accumulatedDirtyRegion
      */
     void flush();
-    void flushed() { isFlushing = false; }
+    void flushed();
 };
 
 /**

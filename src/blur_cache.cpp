@@ -114,9 +114,13 @@ KWin::Region BBDX::BlurCacheEntry::localDirtyRegionGL(const KWin::Region &dirtyR
 }
 
 void BBDX::BlurCacheEntry::flush() {
+    isFlushing = true;
+}
+
+void BBDX::BlurCacheEntry::flushed() {
     accumulatedDirtyRegion = KWin::Region{};
     lastFlush = std::chrono::steady_clock::now();
-    isFlushing = true;
+    isFlushing = false;
 }
 
 BBDX::BlurCacheEntry* BBDX::BlurCacheLRU::get() {
