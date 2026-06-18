@@ -78,8 +78,8 @@ BBDX::TextureComparer::WindowData::~WindowData() {
 
 
 std::optional<std::pair<GLuint, GLuint>> BBDX::TextureComparer::WindowData::getSlot() {
-    int slot{m_lastSlot + 1};
-    if (slot >= SLOTS) {
+    int slot{m_lastSlot};
+    if (++slot >= SLOTS) {
         slot = 0;
     }
 
@@ -87,6 +87,7 @@ std::optional<std::pair<GLuint, GLuint>> BBDX::TextureComparer::WindowData::getS
         GLuint result{GL_FALSE};
         glGetQueryObjectuiv(m_queries[slot], GL_QUERY_RESULT_AVAILABLE, &result);
         if (result == GL_TRUE) {
+            m_lastSlot = slot;
             return {{m_counterBuffers[slot], m_queries[slot]}};
         }
 
