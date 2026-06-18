@@ -96,6 +96,9 @@ void BBDX::BlurCacheEntry::accumulateDirtyRegion(const KWin::Region &dirtyRegion
     for (const auto &rect : dirtyRegion.rects()) {
         accumulatedDirtyRegion |= rect;
     }
+
+    // we only care about dirtyRegion that has blur
+    accumulatedDirtyRegion &= backgroundRect;
 }
 
 KWin::Region BBDX::BlurCacheEntry::localDirtyRegion(const KWin::Region &dirtyRegion) const {
