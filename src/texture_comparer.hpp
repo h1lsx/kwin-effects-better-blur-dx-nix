@@ -70,10 +70,10 @@ public:
 
     // the Rect struct as used in the compute shader
     struct ComputeShaderRect {
-        GLint left;
-        GLint right;
-        GLint top;
-        GLint bottom;
+        GLint x;
+        GLint y;
+        GLint width;
+        GLint height;
     };
 
 private:

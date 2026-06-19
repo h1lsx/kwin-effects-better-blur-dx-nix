@@ -62,19 +62,20 @@ static inline std::pair<std::vector<BBDX::TextureComparer::ComputeShaderRect>, K
     const auto localDirtyRegion = dirtyRegion.translated(-backgroundRect.topLeft());
 
     for (const auto &rect : localDirtyRegion.rects()) {
-        const int glLeft = rect.left();
-        const int glRight = rect.left() + rect.width();
-        const int glTop = backgroundRect.height() - (rect.top() + rect.height());
-        const int glBottom = backgroundRect.height() - rect.top();
+        // ignore empty rects
+        if (rect.width() <= 0 || rect.height() <= 0) {
+            continue;
+        }
 
-        glDirtyRegion.emplace_back(glLeft, glRight, glTop, glBottom);
+        const int glY = backgroundRect.height() - (rect.y() + rect.height());
+        glDirtyRegion.emplace_back(rect.x(), glY, rect.width(), rect.height());
     }
 
     KWin::Rect boundingRect;
     {
         const auto &rect = localDirtyRegion.boundingRect();
-        const int glTop = backgroundRect.height() - (rect.top() + rect.height());
-        boundingRect = KWin::Rect{rect.left(), glTop, rect.width(), rect.height()};
+        const int glY = backgroundRect.height() - (rect.y() + rect.height());
+        boundingRect = KWin::Rect{rect.x(), glY, rect.width(), rect.height()};
     }
 
     return {std::move(glDirtyRegion), std::move(boundingRect)};
@@ -297,13 +298,14 @@ void BBDX::TextureComparer::compareAndUpdate(const std::pair<GLuint, GLuint> &wi
     glUseProgram(computeShader->program);
 
     glUniform1i(computeShader->dirtyRegionRectCountLocation, glDirtyRegion.size());
-    glUniform4i(computeShader->dirtyRegionBoundingBoxLocation, boundingRect.left(), boundingRect.right(), boundingRect.top(), boundingRect.bottom());
+    glUniform4i(computeShader->dirtyRegionBoundingBoxLocation, boundingRect.x(), boundingRect.y(), boundingRect.width(), boundingRect.height());
 
     // dispatch in 16x16 workgroup blocks (ceiled, matching compute shader params)
     glDispatchCompute((boundingRect.width() + 15) / 16, (boundingRect.height() + 15) / 16, 1);
 
 #if defined(BBDX_DEBUG)
     // in debug builds log the changed pixels
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, counterBuffer);
     glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
     GLuint pixelsChanged{0};
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(GLuint), &pixelsChanged);
