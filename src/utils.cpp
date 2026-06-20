@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include "kwin_compat.hpp"
+
 #include <opengl/gltexture.h>
 #include <opengl/glframebuffer.h>
 
