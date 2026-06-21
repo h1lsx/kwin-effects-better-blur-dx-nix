@@ -222,20 +222,26 @@ BBDX::BlurCache::BlurCache(BBDX::BlurEffect *effect) {
     */
 }
 
-void BBDX::BlurCache::preparePaintData(const KWin::RenderView *view,
+void BBDX::BlurCache::preparePaintData(const KWin::RenderTarget *renderTarget,
+                                       const KWin::RenderViewport *viewport,
+                                       const KWin::RenderView *view,
                                        const KWin::EffectWindow *window,
                                        const KWin::Region *dirtyRegion,
                                        KWin::GLFramebuffer *blitFramebuffer,
                                        const KWin::Rect *backgroundRect,
                                        const KWin::Rect *scaledBackgroundRect,
                                        BlurCacheLRU &cache) {
-    m_paintData.view = view;
-    m_paintData.window = window;
-    m_paintData.dirtyRegion = dirtyRegion;
-    m_paintData.blitFramebuffer = blitFramebuffer;
-    m_paintData.backgroundRect = backgroundRect;
-    m_paintData.scaledBackgroundRect = scaledBackgroundRect;
-    m_paintData.glBeginConditionalRenderCalled = false;
+    m_paintData = {
+        .renderTarget = renderTarget,
+        .viewport = viewport,
+        .view = view,
+        .window = window,
+        .dirtyRegion = dirtyRegion,
+        .backgroundRect = backgroundRect,
+        .scaledBackgroundRect = scaledBackgroundRect,
+        .blitFramebuffer = blitFramebuffer,
+        .glBeginConditionalRenderCalled = false,
+    };
 
     // the cache entry needs to stay in sync
     // so BlurCacheEntry::localDirtyRegion() returns

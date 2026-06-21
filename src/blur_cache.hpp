@@ -159,6 +159,8 @@ public:
 };
 
 struct BlurCachePaintData {
+    const KWin::RenderTarget *renderTarget;
+    const KWin::RenderViewport *viewport;
     const KWin::RenderView *view;
     const KWin::EffectWindow *window;
     const KWin::Region *dirtyRegion;
@@ -203,7 +205,9 @@ public:
     /**
      * Prepare the cache for this paint
      */
-    void preparePaintData(const KWin::RenderView *view,
+    void preparePaintData(const KWin::RenderTarget *renderTarget,
+                          const KWin::RenderViewport *viewport,
+                          const KWin::RenderView *view,
                           const KWin::EffectWindow *window,
                           const KWin::Region *dirtyRegion,
                           KWin::GLFramebuffer *blitFramebuffer,

@@ -1050,7 +1050,15 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         renderInfo.framebuffers[0]->blitFromRenderTarget(renderTarget, viewport, dirtyRect, dirtyRect.translated(-backgroundRect.topLeft()));
     }
 #else
-    m_blurCache->preparePaintData(m_currentView, w, &dirtyRegion, renderInfo.framebuffers[0].get(), &backgroundRect, &scaledBackgroundRect, renderInfo.cache);
+    m_blurCache->preparePaintData(&renderTarget,
+                                  &viewport,
+                                  m_currentView,
+                                  w,
+                                  &dirtyRegion,
+                                  renderInfo.framebuffers[0].get(),
+                                  &backgroundRect,
+                                  &scaledBackgroundRect,
+                                  renderInfo.cache);
 
     // BBDX: Always blit the entire backgroundRect to avoid subtle rounding errors on scaled RenderViews.
     //       It took me way too many hours to figure out that this is what's causing sporadic
