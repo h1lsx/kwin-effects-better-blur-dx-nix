@@ -1164,7 +1164,7 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     vbo->bindArrays();
 
     // BBDX: rate limited
-    if (!renderInfo.cache.get()->isFlushing()) {
+    if (!renderInfo.cache->isFlushing()) {
         const float modulation = opacity * opacity;
         m_blurCache->drawCached(viewport, renderInfo, vbo, vertexCount, modulation);
         return;
