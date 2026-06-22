@@ -59,7 +59,7 @@ static inline void updateBlitFramebufferFromWallpaper(BBDX::WallpaperData *wallp
                                                       const KWin::Rect &backgroundRect) {
     KWin::GLFramebuffer::pushFramebuffer(wallpaper->framebuffer.get());
     for (const auto &rect : dirtyRegion.rects()) {
-        blitFramebuffer->blitFromFramebuffer(rect.translated(-wallpaper->geometry.topLeft()),
+        blitFramebuffer->blitFromFramebuffer(rect.translated(-wallpaper->geometry.topLeft().toPoint()),
                                              rect.translated(-backgroundRect.topLeft()));
     }
     KWin::GLFramebuffer::popFramebuffer();
@@ -378,10 +378,9 @@ BBDX::WallpaperData* BBDX::BlurCache::getWallpaper() {
     KWin::RenderView *view = const_cast<KWin::RenderView *>(m_paintData.view);
     KWin::RenderTarget *renderTarget = const_cast<KWin::RenderTarget *>(m_paintData.renderTarget);
 
-    auto it = m_wallpapers.find(view);
-    if (it != m_wallpapers.end()) {
-        return &(it->second);
-    }
+    // for now only cache for the purpose of reusing
+    // framebuffer + texture if they still fit
+    WallpaperData &wallpaper = m_wallpapers[view];
 
     KWin::EffectWindow *desktop{nullptr};
     for (const auto &window : effects->stackingOrder()) {
@@ -396,36 +395,41 @@ BBDX::WallpaperData* BBDX::BlurCache::getWallpaper() {
         return nullptr;
     }
 
-    const KWin::Rect geometry{desktop->frameGeometry().toAlignedRect()};
+    wallpaper.scale = desktop->window()->targetScale();
+    wallpaper.geometry = desktop->frameGeometry();
 
     GLenum textureFormat = GL_RGBA8;
     if (renderTarget->texture()) {
         textureFormat = renderTarget->texture()->internalFormat();
     }
 
-    auto texture = KWin::GLTexture::allocate(textureFormat, geometry.size());
-    if (!texture) {
-        qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "GLTexture allocation failed";
-        return nullptr;
+    const QSize textureSize{(wallpaper.geometry.size() * wallpaper.scale).toSize()};
+
+    // realloc framebuffer+texture when needed
+    if (!wallpaper.texture || wallpaper.texture->internalFormat() != textureFormat || wallpaper.texture->size() != textureSize) {
+        wallpaper.texture = KWin::GLTexture::allocate(textureFormat, textureSize);
+        if (!wallpaper.texture) {
+            qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "GLTexture allocation failed";
+            return nullptr;
+        }
+
+        wallpaper.texture->setFilter(GL_LINEAR);
+        wallpaper.texture->setWrapMode(GL_CLAMP_TO_EDGE);
+
+        wallpaper.framebuffer = std::make_unique<GLFramebuffer>(wallpaper.texture.get());
+        if (!wallpaper.framebuffer->valid()) {
+            qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "GLFramebuffer allocation failed";
+            return nullptr;
+        }
     }
 
-    texture->setFilter(GL_LINEAR);
-    texture->setWrapMode(GL_CLAMP_TO_EDGE);
-
-    std::unique_ptr<GLFramebuffer> framebuffer = std::make_unique<GLFramebuffer>(texture.get());
-    if (!framebuffer->valid()) {
-        qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "GLFramebuffer allocation failed";
-        return nullptr;
-    }
-
-    const RenderTarget wallpaperRenderTarget{framebuffer.get()};
-    const RenderViewport wallpaperRenderViewport{geometry, 1.0, wallpaperRenderTarget, QPoint{}};
+    const RenderTarget wallpaperRenderTarget{wallpaper.framebuffer.get()};
+    const RenderViewport wallpaperRenderViewport{wallpaper.geometry, wallpaper.scale, wallpaperRenderTarget, QPoint{}};
     WindowPaintData data{};
 
-    GLFramebuffer::pushFramebuffer(framebuffer.get());
+    GLFramebuffer::pushFramebuffer(wallpaper.framebuffer.get());
     effects->drawWindow(wallpaperRenderTarget, wallpaperRenderViewport, desktop, KWin::Scene::PAINT_WINDOW_TRANSFORMED, KWin::Region::infinite(), data);
     GLFramebuffer::popFramebuffer();
 
-    m_wallpapers.emplace(view, WallpaperData{std::move(geometry), std::move(framebuffer), std::move(texture)});
-    return &m_wallpapers.at(view);
+    return &wallpaper;
 }
