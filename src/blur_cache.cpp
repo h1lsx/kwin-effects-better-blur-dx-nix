@@ -432,7 +432,7 @@ BBDX::WallpaperData* BBDX::BlurCache::getWallpaper() {
         }
     }
 
-    const RenderTarget wallpaperRenderTarget{wallpaper.framebuffer.get()};
+    const RenderTarget wallpaperRenderTarget{wallpaper.framebuffer.get(), renderTarget->colorDescription()};
     const RenderViewport wallpaperRenderViewport{wallpaper.geometry, 1.0, wallpaperRenderTarget, QPoint{}};
     WindowPaintData data{};
 
