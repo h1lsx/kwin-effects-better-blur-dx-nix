@@ -165,6 +165,7 @@ std::unique_ptr<BBDX::BlurCache> BBDX::BlurCache::create(BBDX::BlurEffect *effec
         return nullptr;
     } else {
         blurCache->m_texturePass.mvpMatrixLocation = blurCache->m_texturePass.shader->uniformLocation("modelViewProjectionMatrix");
+        blurCache->m_texturePass.modulationLocation = blurCache->m_texturePass.shader->uniformLocation("modulation");
     }
 
     return blurCache;
@@ -310,19 +311,15 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
     }
 
     m_texturePass.shader->setUniform(m_texturePass.mvpMatrixLocation, projectionMatrix);
+    m_texturePass.shader->setUniform(m_texturePass.modulationLocation, modulation);
     read->bind();
 
-    if (modulation < 1.0) {
-        glEnable(GL_BLEND);
-        glBlendColor(0, 0, 0, modulation);
-        glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-    }
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     vbo->draw(GL_TRIANGLES, vboStartScreen(), vertexCount);
 
-    if (modulation < 1.0) {
-        glDisable(GL_BLEND);
-    }
+    glDisable(GL_BLEND);
 
     KWin::ShaderManager::instance()->popShader();
 }
