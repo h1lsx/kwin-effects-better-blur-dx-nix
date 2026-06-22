@@ -3,6 +3,7 @@
 #include "kwin_compat.hpp"
 
 #include <chrono>
+#include <core/renderviewport.h>
 #include <effect/effect.h>
 #include <epoxy/gl.h>
 
@@ -12,6 +13,7 @@
 #include <opengl/gltexture.h>
 #include <opengl/glvertexbuffer.h>
 #include <scene/scene.h>
+#include <unordered_map>
 
 #if KWIN_VERSION >= KWIN_VERSION_CODE(6, 5, 80)
 #  include <core/rect.h>
@@ -143,6 +145,11 @@ struct BlurCachePaintData {
     KWin::GLFramebuffer *blitFramebuffer;
 };
 
+struct WallpaperData {
+    std::unique_ptr<KWin::GLFramebuffer> framebuffer;
+    std::unique_ptr<KWin::GLTexture> texture;
+};
+
 class BlurCache {
 private:
     struct {
@@ -156,6 +163,11 @@ private:
     // Data used for this specific window paint
     // !!! preparePaintData() must be called before accessing any of this !!!
     BlurCachePaintData m_paintData{};
+
+    /**
+     * Wallpaper buffers for stencil mode
+     */
+    std::unordered_map<KWin::RenderView *, WallpaperData> m_wallpapers;
 
     /**
      * use create()
@@ -216,6 +228,13 @@ public:
      * Flush all window's accumulatedDirtyRegions
      */
     void flushAccumulatedDirtyRegions(KWin::ScreenPrePaintData &data) const;
+
+    /**
+     * Get the wallpaper buffer+texture for the given renderView
+     *
+     * nullptr on error
+     */
+    WallpaperData* getWallpaper(KWin::RenderView *view, KWin::RenderTarget *renderTarget);
 };
 
 } // namespace BBDX

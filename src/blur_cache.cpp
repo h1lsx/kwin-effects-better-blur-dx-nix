@@ -342,3 +342,54 @@ void BBDX::BlurCache::flushAccumulatedDirtyRegions(KWin::ScreenPrePaintData &dat
         }
     }
 }
+
+BBDX::WallpaperData* BBDX::BlurCache::getWallpaper(KWin::RenderView *view, KWin::RenderTarget *renderTarget) {
+    auto it = m_wallpapers.find(view);
+    if (it != m_wallpapers.end()) {
+        return &(it->second);
+    }
+
+    KWin::EffectWindow *desktop{nullptr};
+    for (const auto &window : effects->stackingOrder()) {
+        if (window->isDesktop() && window->screen() == view->logicalOutput()) {
+            desktop = window;
+            break;
+        }
+    }
+
+    if (!desktop) {
+        qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "Could not find a desktop on RenderView";
+        return nullptr;
+    }
+
+    GLenum textureFormat = GL_RGBA8;
+    if (renderTarget->texture()) {
+        textureFormat = renderTarget->texture()->internalFormat();
+    }
+
+    auto texture = KWin::GLTexture::allocate(textureFormat, desktop->frameGeometry().size().toSize());
+    if (!texture) {
+        qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "GLTexture allocation failed";
+        return nullptr;
+    }
+
+    texture->setFilter(GL_LINEAR);
+    texture->setWrapMode(GL_CLAMP_TO_EDGE);
+
+    std::unique_ptr<GLFramebuffer> framebuffer = std::make_unique<GLFramebuffer>(texture.get());
+    if (!framebuffer->valid()) {
+        qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "GLFramebuffer allocation failed";
+        return nullptr;
+    }
+
+    const RenderTarget wallpaperRenderTarget{framebuffer.get()};
+    const RenderViewport wallpaperRenderViewport{desktop->frameGeometry(), 1.0, wallpaperRenderTarget, QPoint{}};
+    WindowPaintData data{};
+
+    GLFramebuffer::pushFramebuffer(framebuffer.get());
+    effects->drawWindow(wallpaperRenderTarget, wallpaperRenderViewport, desktop, KWin::Scene::PAINT_WINDOW_TRANSFORMED, KWin::Region::infinite(), data);
+    GLFramebuffer::popFramebuffer();
+
+    m_wallpapers.emplace(view, WallpaperData{std::move(framebuffer), std::move(texture)});
+    return &m_wallpapers.at(view);
+}
