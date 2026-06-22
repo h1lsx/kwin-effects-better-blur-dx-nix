@@ -805,8 +805,12 @@ void BlurEffect::prePaintWindow(RenderView *view, EffectWindow *w, WindowPrePain
 
     // BBDX change:
     // blurred windows should be painted translucent
-    // to avoid issues with repainting
-    if (m_windowManager->windowIsBlurred(w)) {
+    // to avoid issues with repainting because KWin would
+    // cull some areas leading to incomplete blits.
+    //
+    // Wallpaper mode does not need this because it
+    // doesn't rely on blitting
+    if (m_windowManager->windowIsBlurred(w) && m_blitMode != BlitMode::WALLPAPER) {
         data.setTranslucent();
     }
 }
