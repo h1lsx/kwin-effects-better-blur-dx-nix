@@ -415,6 +415,8 @@ BBDX::WallpaperData* BBDX::BlurCache::getWallpaper() {
 
     // realloc framebuffer+texture when needed
     if (!wallpaper.texture || wallpaper.texture->internalFormat() != textureFormat || wallpaper.texture->size() != textureSize) {
+        qCDebug(BLUR_CACHE) << BBDX::LOG_PREFIX << "(Re-)Allocating wallpaper buffer";
+
         wallpaper.texture = KWin::GLTexture::allocate(textureFormat, textureSize);
         if (!wallpaper.texture) {
             qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "GLTexture allocation failed";
@@ -447,6 +449,8 @@ void BBDX::BlurCache::dropWallpaper(KWin::RenderView *view) {
     if (it == m_wallpapers.end()) {
         return;
     }
+
+    qCDebug(BLUR_CACHE) << BBDX::LOG_PREFIX << "Dropping wallpaper buffer";
 
     effects->makeOpenGLContextCurrent();
 
