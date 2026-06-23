@@ -22,9 +22,10 @@ std::unique_ptr<BBDX::RefractionPass> BBDX::RefractionPass::create() {
     std::unique_ptr<RefractionPass> pass{new RefractionPass};
 
     pass->m_shader = KWin::ShaderManager::instance()->generateShaderFromFile(
-            KWin::ShaderTrait::MapTexture,
-            QStringLiteral(":/effects/better_blur_dx/shaders/vertex.vert"),
-            QStringLiteral(":/effects/better_blur_dx/shaders/refraction.frag"));
+        KWin::ShaderTrait::MapTexture,
+        BBDX::shaderFilePath(QStringLiteral(":/effects/better_blur_dx/shaders/vertex.vert")),
+        BBDX::shaderFilePath(QStringLiteral(":/effects/better_blur_dx/shaders/refraction.frag"))
+    );
 
     if (!pass->m_shader) {
         qCWarning(REFRACTION_PASS) << BBDX::LOG_PREFIX << "Failed to load refraction pass shader";

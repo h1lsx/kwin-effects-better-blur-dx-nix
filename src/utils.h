@@ -8,6 +8,7 @@
 #include <epoxy/gl.h>
 
 #include <QSize>
+#include <QString>
 
 namespace BBDX
 {
@@ -51,5 +52,17 @@ void setGLScissor(const KWin::Region &dirtyRegion, const KWin::Rect &backgroundR
  * should be cleared right before drawing on the screen
  */
 void clearGLScissor();
+
+/**
+ * Compatibility helper for loading the proper shader files
+ *
+ * Plasma <6.7 always needed 2 versions of a shader in the QRC path
+ * - "legacy" (no suffix) and "core" (_core suffix)
+ * with the "core" version loaded in OpenGL 3.1+ environments
+ *
+ * Plasma >=6.7 only wants the "core" shader and downgrades it internally
+ * by injecting helper funtions
+ */
+QString shaderFilePath(QString shader);
 
 }

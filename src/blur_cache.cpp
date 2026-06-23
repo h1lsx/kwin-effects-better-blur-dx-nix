@@ -137,9 +137,12 @@ std::unique_ptr<BBDX::BlurCache> BBDX::BlurCache::create(BBDX::BlurEffect *effec
 
     blurCache->m_effect = effect;
 
-    blurCache->m_texturePass.shader = KWin::ShaderManager::instance()->generateShaderFromFile(KWin::ShaderTrait::MapTexture,
-                                                                           QStringLiteral(":/effects/better_blur_dx/shaders/vertex.vert"),
-                                                                           QStringLiteral(":/effects/better_blur_dx/shaders/texture.frag"));
+    blurCache->m_texturePass.shader = KWin::ShaderManager::instance()->generateShaderFromFile(
+        KWin::ShaderTrait::MapTexture,
+        BBDX::shaderFilePath(QStringLiteral(":/effects/better_blur_dx/shaders/vertex.vert")),
+        BBDX::shaderFilePath(QStringLiteral(":/effects/better_blur_dx/shaders/texture.frag"))
+    );
+
     if (!blurCache->m_texturePass.shader) {
         qCWarning(BLUR_CACHE) << BBDX::LOG_PREFIX << "Failed to load texture pass shader";
         return nullptr;

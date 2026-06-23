@@ -56,3 +56,11 @@ void BBDX::clearGLScissor() {
     glScissor(0, 0, 0, 0);
     glDisable(GL_SCISSOR_TEST);
 }
+
+QString BBDX::shaderFilePath(QString shader) {
+#if KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
+    return shader;
+#else
+    return shader.insert(shader.lastIndexOf("."), "_core");
+#endif
+}

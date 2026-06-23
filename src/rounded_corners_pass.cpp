@@ -30,9 +30,10 @@ std::unique_ptr<BBDX::RoundedCornersPass> BBDX::RoundedCornersPass::create() {
     std::unique_ptr<RoundedCornersPass> pass{new RoundedCornersPass};
 
     pass->m_shader = KWin::ShaderManager::instance()->generateShaderFromFile(
-            KWin::ShaderTrait::MapTexture,
-            QStringLiteral(":/effects/better_blur_dx/shaders/rounded_corners.vert"),
-            QStringLiteral(":/effects/better_blur_dx/shaders/rounded_corners.frag"));
+        KWin::ShaderTrait::MapTexture,
+        BBDX::shaderFilePath(QStringLiteral(":/effects/better_blur_dx/shaders/rounded_corners.vert")),
+        BBDX::shaderFilePath(QStringLiteral(":/effects/better_blur_dx/shaders/rounded_corners.frag"))
+    );
 
     if (!pass->m_shader) {
         qCWarning(ROUNDED_CORNERS_PASS) << BBDX::LOG_PREFIX << "Failed to load rounded corners pass shader";
