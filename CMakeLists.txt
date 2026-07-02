@@ -31,7 +31,7 @@ option(BBDX_DEBUG "Enable extra code paths useful for debugging (Warning: major 
 # deprecated build options
 if(DEFINED BETTERBLUR_X11)
     message(DEPRECATION "The BETTERBLUR_X11 build option is deprecated - use BBDX_X11 instead")
-    set(BBDX_X11 ${BETTERBLUR_X11})
+    set(BBDX_X11 ${BETTERBLUR_X11} CACHE BOOL "BETTERBLUR_X11 alias" FORCE)
     unset(BETTERBLUR_X11 CACHE)
 endif()
 
